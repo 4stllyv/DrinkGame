@@ -316,12 +316,13 @@ function showGame(id) {
 }
 
 function back() {
-  document.getElementById('menu').style.display = 'block';
+  document.getElementById('menu').style.display = 'flex';
 
   document.querySelectorAll('.game').forEach(g => {
     g.classList.remove('show');
   });
 }
+
 
 
 // 🎯 ルーレット
