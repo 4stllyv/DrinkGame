@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Party Game</title>
+
+<style>
+body {
+  margin: 0;
+  padding: 0;
+
+  font-family: Arial;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 40px;
+}
+
+#menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game, #menu {
+  width: 90%;
+  max-width: 400px;
+
+  margin-top: 40px;
+
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+
+.show {
+  display: flex;
+}
+
+input {
+  width: 100px;
+  font-size: 20px;
+  text-align: center;
+
+  margin: 10px;
+  padding: 10px;
+
+  border-radius: 10px;
+}
+
+h1, h2 {
+  margin-bottom: 20px;
+}
+
+button {
+  width: 100%;
+  max-width: 300px;
+
+  padding: 16px;
+  margin: 12px 0;
+
+  font-size: 18px;
+
+  border-radius: 30px;
+
+  background: linear-gradient(45deg, #00c6ff, #0072ff);
+  color: white;
+}
+
+.game {
+  display: none;
+}
+
+.result {
+  font-size: 28px;
+  margin: 20px;
+}
+
+.big-btn {
+  padding: 20px 50px;
+  font-size: 24px;
+}
+
+.game.show {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ルーレット */
+#wheelContainer {
+  position: relative;
+  width: 220px;
+  margin: 30px auto;
+}
+
+canvas {
+  border-radius: 50%;
+  border: 5px solid white;
+}
+
+#pointer {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(180deg);
+  font-size: 30px;
+}
+
+/* 王様ゲーム */
+.card {
+  width: 60%;
+  max-width: 200px;
+  height: 120px;
+
+  margin: 40px auto;
+  
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+
+
+  perspective: 800px;
+  cursor: pointer;
+}
+
+.card div {
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+
+  position: absolute;
+  backface-visibility: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 32px;
+  font-weight: bold;
+}
+
+/* 表（？） */
+.front {
+  background: white;
+  color: black;
+}
+
+/* 裏（結果） */
+.back {
+  background: linear-gradient(45deg, #ff6a00, #ff3c00);
+  color: white;
+  transform: rotateY(180deg);
+}
+
+/* 回転 */
+.card.flip {
+  transform: rotateY(180deg);
+  transition: 0.6s;
+}
+
+
+/* 反射神経 */
+/* 全体中央配置 */
+#reaction.game {
+  display: none;
+}
+
+#reaction.show {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+/* テキスト */
+#reactionText {
+  font-size: 36px;
+  margin-bottom: 40px;
+}
+
+/* スタートボタン（超重要🔥） */
+#reactionBtn {
+  width: 200px;
+  height: 80px;
+  font-size: 24px;
+  font-weight: bold;
+
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+
+  background: linear-gradient(45deg, #00c6ff, #0072ff);
+  color: white;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+
+  margin-bottom: 60px;
+
+  transition: 0.2s;
+}
+
+/* 押した時 */
+#reactionBtn:active {
+  transform: scale(0.95);
+}
+
+/* 戻るボタン */
+#reaction button:last-child {
+  position: absolute;
+  bottom: 40px;
+
+  width: 140px;
+  height: 50px;
+
+  border-radius: 25px;
+}
+
+.go {
+  color: #ff3c00;
+  font-weight: bold;
+  animation: flash 0.2s infinite alternate;
+  }
+
+  @keyframes flash {
+  from { opacity: 1; }
+  to { opacity: 0.5; }
+  }
+
+
+
+
+
+
+</style>
+
+</head>
+<body>
+
+<!-- 🎮 メニュー -->
+<div id="menu">
+  <h1>🎮 Party Game</h1>
+  <button onclick="showGame('roulette')">ルーレット</button><br>
+  <button onclick="showGame('king')">王様ゲーム</button><br>
+  <button onclick="showGame('reaction')">反射神経ゲーム</button>
+</div>
+
+<!-- 🎯 ルーレット -->
+<div id="roulette" class="game">
+  <h2>🎯 ルーレット</h2>
+
+  <div id="wheelContainer">
+    <div id="pointer">▲</div>
+    <canvas id="rouletteCanvas" width="220" height="220"></canvas>
+  </div>
+
+  <div id="rouletteResult" class="result">スタート！</div>
+
+  <button onclick="spinRoulette()">回す</button><br>
+  <button onclick="back()">戻る</button>
+</div>
+
+<!--　🫅 王様ゲーム -->
+<div id="king" class="game">
+  <h2>👑 王様ゲーム</h2>
+
+  <div class="card" id="kingCard">
+    <div class="front">？</div>
+    <div class="back"></div>
+  </div>
+
+  <input type="number"
+  id="playerCount"
+  min="3"
+  max="12"
+  value="3"
+  oninput="this.value = Math.max(3, Math.min(12, this.value))">
+
+
+
+  <button onclick="startKingGame()">スタート</button>
+  <button onclick="back()">戻る</button>
+</div>
+
+<!-- ⚡ 反射ゲーム -->
+<div id="reaction" class="game">
+  <h2>⚡ 反射神経ゲーム</h2>
+
+  <div id="reactionText" class="result">GO!の合図でボタンを押せ</div>
+
+  <button id="reactionBtn">スタート</button>
+  <button onclick="back()">戻る</button>
+</div>
+
+
+
+<script>
+document.getElementById('menu').style.display = 'flex';
+// 🔄 画面切り替え
+function showGame(id) {
+  document.getElementById('menu').style.display = 'none';
+  document.querySelectorAll('.game').forEach(g => {
+    g.classList.remove('show');
+  });
+  document.getElementById(id).classList.add('show');
+}
+
+function back() {
+  document.getElementById('menu').style.display = 'block';
+
+  document.querySelectorAll('.game').forEach(g => {
+    g.classList.remove('show');
+  });
+}
+
+
+// 🎯 ルーレット
+const rouletteList = [
+  "🍺飲む",
+  "😎セーフ",
+  "🔥全員",
+  "👉指名",
+  "💀一気",
+  "🎉もう一回"
+];
+
+const colors = [
+  "#ff7675", "#74b9ff", "#55efc4",
+  "#ffeaa7", "#fd79a8", "#a29bfe"
+];
+
+function drawWheel(rotation = 0) {
+  const canvas = document.getElementById('rouletteCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const size = canvas.width;
+  const center = size / 2;
+  const radius = center;
+
+  const slice = (2 * Math.PI) / rouletteList.length;
+
+  ctx.clearRect(0, 0, size, size);
+
+  ctx.save();
+  ctx.translate(center, center);
+  ctx.rotate(rotation - Math.PI / 2);
+
+  for (let i = 0; i < rouletteList.length; i++) {
+    const start = i * slice;
+    const end = start + slice;
+
+    // 色
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, radius, start, end);
+    ctx.fillStyle = colors[i];
+    ctx.fill();
+
+    // 文字
+    ctx.save();
+    ctx.rotate(start + slice / 2);
+
+    ctx.fillStyle = "#333";
+    ctx.font = "14px Arial";
+    ctx.textAlign = "center";
+
+    ctx.fillText(rouletteList[i], radius * 0.65, 5);
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+let currentRotation = 0;
+let isSpinning = false;
+
+function spinRoulette() {
+  if (isSpinning) return;
+  isSpinning = true;
+
+  const slice = (2 * Math.PI) / rouletteList.length;
+
+  const start = currentRotation;
+  const randomSpins = Math.PI * 8;
+  const randomOffset = Math.random() * Math.PI * 2;
+
+  const end = start + randomSpins + randomOffset;
+
+  const duration = 4000;
+  const startTime = performance.now();
+
+  function animate(time) {
+
+    // 🔹 経過時間
+    let progress = (time - startTime) / duration;
+    if (progress > 1) progress = 1;
+
+    // 🔹 減速（イージング）
+    const ease = 1 - Math.pow(1 - progress, 3);
+
+    // 🔹 回転角度
+    const angle = start + (end - start) * ease;
+
+    drawWheel(angle);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      currentRotation = angle;
+
+      // ✅ 回転角を正規化
+      let normalized = angle % (2 * Math.PI);
+      if (normalized < 0) normalized += 2 * Math.PI;
+
+      // ✅ 12時位置（矢印）に合わせる
+      let pointerAngle = (Math.PI * 2 - normalized) % (2 * Math.PI);
+
+      // ✅ セクション判定（シンプル）
+      let index = Math.floor(pointerAngle / slice);
+
+      // ✅ 結果表示
+      document.getElementById('rouletteResult').textContent =
+        rouletteList[index];
+
+      isSpinning = false;
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+drawWheel();
+
+
+
+// 🫅 王様ゲーム
+let players = [];
+
+function startKingGame() {
+  const count = Number(document.getElementById("playerCount").value);
+
+  if (count < 2) {
+    alert("2人以上で！");
+    return;
+  }
+
+  players = [];
+
+  // 👑 王様1人＋番号
+  players.push("👑 王様");
+
+  for (let i = 1; i < count; i++) {
+    players.push(i + "番");
+  }
+
+  // ✅ シャッフル（ここが重要🔥）
+  for (let i = players.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [players[i], players[j]] = [players[j], players[i]];
+  }
+
+  showPlayer(0);
+}
+
+
+function showPlayer(index) {
+  const card = document.getElementById("kingCard");
+  const front = card.querySelector(".front");
+  const back = card.querySelector(".back");
+
+  // 初期状態
+  front.textContent = "？";
+  back.textContent = "";
+  card.classList.remove("flip");
+
+  card.onclick = function () {
+
+    // ✅ ここが一番重要
+    back.textContent = players[index];
+
+    // ✅ めくる
+    card.classList.add("flip");
+
+    // ✅ 次へ
+    setTimeout(() => {
+      if (index + 1 < players.length) {
+        showPlayer(index + 1);
+      } else {
+        front.textContent = "終了！";
+        card.classList.remove("flip");
+      }
+    }, 1500);
+  };
+}
+
+
+
+
+// ⚡ 反射ゲーム
+let reactionStart = null;
+let timerId = null;
+let state = "idle"; // idle / waiting / ready
+
+const btn = document.getElementById("reactionBtn");
+const text = document.getElementById("reactionText");
+
+btn.addEventListener("click", function() {
+
+  // 🎯 ① スタート状態
+  if (state === "idle") {
+
+    text.textContent = "READY...";
+    state = "waiting";
+
+    const delay = Math.random() * 3000 + 2000;
+
+    timerId = setTimeout(() => {
+      text.textContent = "GO!";
+      text.className = "result go";
+      state = "ready";
+      reactionStart = Date.now();
+      btn.textContent = "STOP";
+    }, delay);
+
+  }
+
+  // 💀 ② フライング
+  else if (state === "waiting") {
+
+    clearTimeout(timerId);
+
+    text.textContent = "💀 フライング！飲み！";
+
+    state = "idle";
+    btn.textContent = "スタート";
+  }
+
+  // ✅ ③ GO後（本番）
+  else if (state === "ready") {
+
+    const time = Date.now() - reactionStart;
+
+    text.textContent = time + " ms！";
+    text.className = "result"
+
+    // 評価
+    setTimeout(() => {
+      if (time < 250) {
+        text.textContent;
+      } else if (time < 350) {
+        text.textContent;
+      } else {
+        text.textContent;
+      }
+    }, 200);
+
+    state = "idle";
+    btn.textContent = "スタート";
+  }
+
+});
+</script>
+
+</body>
+</html>
