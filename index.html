@@ -381,6 +381,107 @@ canvas {
   margin: auto;
 }
 
+/* 風船ゲーム */
+#balloonArea {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 25px;
+  margin: 20px;
+}
+
+.balloon {
+  font-size: 50px;
+  cursor: pointer;
+
+  display: inline-block;
+
+  background: none;      /* ✅ これ追加（超重要） */
+  box-shadow: none;      /* ✅ 影も消す */
+  border-radius: 0;      /* ✅ 形リセット */
+
+  transition: transform 0.2s;
+}
+
+.balloon:active {
+  transform: scale(0.9);
+}
+
+#balloonResult {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.7);
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: 0.3s;
+}
+
+#balloonResult.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+#balloonText {
+  font-size: 48px;
+  font-weight: bold;
+
+  margin-bottom: 30px;
+
+  color: white;
+
+  text-shadow:
+    0 0 10px red,
+    0 0 30px orange,
+    0 0 50px yellow;
+}
+
+#balloonButtons {
+  display: flex;
+  gap: 20px;
+}
+
+#balloonButtons button {
+  min-width: 120px;
+
+  padding: 12px 20px;
+  font-size: 18px;
+
+  border-radius: 20px;
+
+  background: linear-gradient(45deg, #ff6ec7, #00f2ff);
+
+  box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+
+  transition: 0.2s;
+}
+
+#balloonButtons button:active {
+  transform: translateY(3px);
+}
+
+@keyframes shake {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-5px, 5px); }
+  40% { transform: translate(5px, -5px); }
+  60% { transform: translate(-5px, -5px); }
+  80% { transform: translate(5px, 5px); }
+  100% { transform: translate(0, 0); }
+}
+
+.shake {
+  animation: shake 0.3s;
+}
+
+
+
 
 
 
@@ -397,7 +498,9 @@ canvas {
   <button onclick="showGame('roulette')">ルーレット</button><br>
   <button onclick="showGame('king')">王様ゲーム</button><br>
   <button onclick="showGame('reaction')">反射神経ゲーム</button><br>
-  <button onclick="showGame('dice')">チンチロ</button>
+  <button onclick="showGame('dice')">チンチロ</button><br>
+  <button onclick="showGame('balloon')">風船ゲーム</button>
+
 </div>
 
 <!-- 🎯 ルーレット -->
@@ -462,6 +565,28 @@ canvas {
   <button onclick="back()">戻る</button>
 </div>
 
+<!-- 風船ゲーム -->
+<div id="balloon" class="game">
+  <h2>🎈 風船ゲーム</h2>
+
+  <div id="balloonResult">
+  <div id="balloonText"></div>
+
+  <div id="balloonButtons">
+    <button onclick="startBalloon()">もう一回</button>
+    <button onclick="back()">戻る</button>
+  </div>
+</div>
+
+  <div id="balloonArea"></div>
+
+  <div id="balloonControls">
+  <button id="startBtn" onclick="startBalloon()">スタート</button>
+  <button onclick="back()">戻る</button>
+</div>
+</div>
+
+
 
 
 <script>
@@ -481,6 +606,13 @@ function back() {
   document.querySelectorAll('.game').forEach(g => {
     g.classList.remove('show');
   });
+
+  
+  resetRoulette();
+  resetKing();
+  resetReaction();
+  resetBalloon();
+
 }
 
 
@@ -498,6 +630,13 @@ const colors = [
   "#ff7675", "#74b9ff", "#55efc4",
   "#ffeaa7", "#fd79a8", "#a29bfe"
 ];
+
+function resetRoulette() {
+  currentRotation = 0;
+  drawWheel();
+
+  document.getElementById("rouletteResult").textContent = "スタート！";
+}
 
 function drawWheel(rotation = 0) {
   const canvas = document.getElementById('rouletteCanvas');
@@ -694,6 +833,14 @@ function showPlayer(index) {
   };
 }
 
+function resetKing() {
+  const card = document.getElementById("kingCard");
+
+  card.classList.remove("flip");
+  card.querySelector(".front").textContent = "？";
+  card.querySelector(".back").textContent = "";
+}
+
 
 
 
@@ -760,6 +907,13 @@ btn.addEventListener("click", function() {
   }
 
   });
+
+  function resetReaction() {
+  state = "idle";
+
+  text.textContent = "GO!の合図でボタンを押せ";
+  btn.textContent = "スタート";
+}
 
 
   // 🎲 チンチロ
@@ -859,6 +1013,114 @@ function drawDots(id, num) {
     dice.appendChild(cell);
   }
 }
+
+// 風船ゲーム
+let bombIndex = -1;
+let gameOver = false;
+
+
+function startBalloon() {
+
+  gameOver = false;
+
+  document.getElementById("startBtn").style.display = "none";
+
+  
+  // ✅ ボタン戻す
+  document.getElementById("balloonControls").style.display = "block";
+
+  // ✅ 結果隠す
+  document.getElementById("balloonResult").classList.remove("show");
+
+
+  const area = document.getElementById("balloonArea");
+  area.innerHTML = "";
+
+  const total = 25;
+  let opened = 0
+
+  // 💥 爆弾位置
+  bombIndex = Math.floor(Math.random() * total);
+
+  for (let i = 0; i < total; i++) {
+
+    const b = document.createElement("div");
+    b.className = "balloon";
+    b.textContent = "🎈";
+
+    b.onclick = function () {
+
+      if (gameOver) return;
+
+      // すでに割ってたら何もしない
+      if (b.textContent !== "🎈") return;
+
+      if (i === bombIndex) {
+        b.textContent = "💥";
+
+        gameOver = true;
+
+        shakeScreen();
+        endBalloon("💥 爆発！負け！");
+      } else {
+        b.textContent = "🎉";
+
+        
+      opened++;
+
+      if (opened === total - 1) {
+
+        endBalloon("🎉 全部成功！");
+      }
+
+
+      }
+
+    };
+
+    area.appendChild(b);
+  }
+}
+
+function endBalloon(text) {
+
+  gameOver = true;
+
+  // 結果表示
+  const box = document.getElementById("balloonResult");
+  const txt = document.getElementById("balloonText");
+
+  txt.textContent = text;
+  box.classList.add("show");
+
+  // ✅ 下のボタン消す
+  document.getElementById("balloonControls").style.display = "none";
+}
+
+function shakeScreen() {
+  document.body.classList.add("shake");
+
+  setTimeout(() => {
+    document.body.classList.remove("shake");
+  }, 300);
+}
+
+function resetBalloon() {
+
+  gameOver = false;
+
+  // 風船削除
+  document.getElementById("balloonArea").innerHTML = "";
+
+  // 結果消す
+  document.getElementById("balloonResult").classList.remove("show");
+
+  // ボタン戻す
+  document.getElementById("balloonControls").style.display = "block";
+
+  document.getElementById("startBtn").style.display = "block";
+}
+
 
 </script>
 
