@@ -11,7 +11,6 @@ body {
   padding: 0;
 
   font-family: Arial;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
   color: white;
 
   display: block;
@@ -19,7 +18,18 @@ body {
   align-items: center;
   padding-bottom: 40px;
   justify-content: center;
+  
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+  background-size: 300% 300%;
+  animation: bgMove 8s ease infinite;
 }
+
+  @keyframes bgMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 
 #menu {
   display: flex;
@@ -55,6 +65,15 @@ input {
   border-radius: 10px;
 }
 
+
+h1 {
+  font-size: 42px;
+  text-shadow: 
+    0 0 10px white,
+    0 0 20px #ff6ec7,
+    0 0 30px #00f2ff;
+}
+
 h1, h2 {
   margin-bottom: 20px;
 }
@@ -70,14 +89,35 @@ button {
 
   border-radius: 30px;
 
-  background: linear-gradient(45deg, #00c6ff, #0072ff);
+  background: linear-gradient(45deg, #ff6ec7, #00f2ff);
   color: white;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+  
+  border: none;
+
+  box-shadow: 
+    0 5px 0 #000,
+    0 10px 20px rgba(0,0,0,0.3);
+
+  transition: 0.2s;
+
 }
 
 .game {
   display: none;
+  animation: popIn 0.5s ease;
 }
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 
 .result {
   font-size: 28px;
@@ -95,6 +135,23 @@ button {
   align-items: center;
   justify-content: center;
 }
+
+button:active {
+  transform: translateY(5px);
+  box-shadow: 
+    0 2px 0 #000,
+    0 5px 10px rgba(0,0,0,0.3);
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+:root {
+  --main: #ff6ec7;
+  --accent: #00f2ff;
+}
+
 
 /* ルーレット */
 #wheelContainer {
@@ -280,6 +337,46 @@ canvas {
   to { opacity: 0.5; }
   }
 
+/* チンチロ */
+#diceArea {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin: 30px 0;
+}
+
+.dice {
+  width: 60px;
+  height: 60px;
+  background: white;
+  border-radius: 10px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  
+  gap: 2px; 
+
+  padding: 10px;  
+  
+    
+  box-shadow:
+  0 6px 0 #ff6ec7,
+  0 10px 20px rgba(0,0,0,0.4);
+
+
+}
+
+.dot {
+  width: 17px;
+  height: 17px;
+  background: black;
+  border-radius: 50%;
+  justify-self: center;
+  align-self: center;
+  margin: auto;
+}
+
 
 
 
@@ -295,7 +392,8 @@ canvas {
   <h1>🎮 Party Game</h1>
   <button onclick="showGame('roulette')">ルーレット</button><br>
   <button onclick="showGame('king')">王様ゲーム</button><br>
-  <button onclick="showGame('reaction')">反射神経ゲーム</button>
+  <button onclick="showGame('reaction')">反射神経ゲーム</button><br>
+  <button onclick="showGame('dice')">チンチロ</button>
 </div>
 
 <!-- 🎯 ルーレット -->
@@ -341,6 +439,22 @@ canvas {
   <div id="reactionText" class="result">GO!の合図でボタンを押せ</div>
 
   <button id="reactionBtn">スタート</button>
+  <button onclick="back()">戻る</button>
+</div>
+
+<!-- 🎲　チンチロ　 -->
+<div id="dice" class="game">
+  <h2>🎲 チンチロ</h2>
+
+  <div id="diceArea">
+  <div class="dice" id="d1">1</div>
+  <div class="dice" id="d2">1</div>
+  <div class="dice" id="d3">1</div>
+</div>
+
+<div id="diceText"></div>
+
+  <button onclick="rollDice()">振る</button>
   <button onclick="back()">戻る</button>
 </div>
 
@@ -641,7 +755,107 @@ btn.addEventListener("click", function() {
     btn.textContent = "スタート";
   }
 
-});
+  });
+
+
+  // 🎲 チンチロ
+  function rollDice() {
+
+  let count = 0;
+  let speed = 60;
+
+  function roll() {
+
+    let d1 = rand();
+    let d2 = rand();
+    let d3 = rand();
+
+    updateDice(d1, d2, d3);
+
+    count++;
+
+    // ✅ 徐々に遅くする
+    speed += 10;
+
+    if (count < 20) {
+      setTimeout(roll, speed);
+    } else {
+      showDiceResult(d1, d2, d3);
+    }
+  }
+
+  roll();
+}
+
+
+function rand() {
+  return Math.floor(Math.random() * 6) + 1;
+}
+
+function updateDice(a, b, c) {
+  drawDots("d1", a);
+  drawDots("d2", b);
+  drawDots("d3", c);
+}
+
+  function showDiceResult(d1, d2, d3) {
+
+  let dice = [d1, d2, d3].sort((a, b) => a - b);
+
+  let text = "";
+
+  if (d1 === 1 && d2 === 1 && d3 === 1) {
+    text = "🔥 ピンゾロ";
+  } 
+  else if (d1 === d2 && d2 === d3) {
+    text = "💥 アラシ";
+  } 
+  else if (dice[0] === 1 && dice[1] === 2 && dice[2] === 3) {
+    text = "💀 ヒフミ";
+  } 
+  else if (dice[0] === 4 && dice[1] === 5 && dice[2] === 6) {
+    text = "🎉 シゴロ";
+  } 
+  else if (d1 === d2 || d1 === d3 || d2 === d3) {
+    let main = d1 === d2 ? d3 : (d1 === d3 ? d2 : d1);
+    text = `👍 ${main}の目`;
+  } 
+  else {
+    text = "❌ 目なし";
+  }
+
+  document.getElementById("diceText").textContent = text;
+}
+
+function drawDots(id, num) {
+  const dice = document.getElementById(id);
+
+  // リセット
+  dice.innerHTML = "";
+
+  // 3x3の位置（0〜8）
+  const positions = {
+    1: [4],
+    2: [0, 8],
+    3: [0, 4, 8],
+    4: [0, 2, 6, 8],
+    5: [0, 2, 4, 6, 8],
+    6: [0, 2, 3, 5, 6, 8]
+  };
+
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement("div");
+
+    if (positions[num].includes(i)) {
+      const dot = document.createElement("div");
+      dot.className = "dot";
+      cell.appendChild(dot);
+    }
+
+    dice.appendChild(cell);
+  }
+}
+
 </script>
 
 </body>
