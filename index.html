@@ -480,6 +480,35 @@ canvas {
   animation: shake 0.3s;
 }
 
+#balloonRule {
+  font-size: 18px;
+  line-height: 1.6;
+
+  margin-bottom: 30px;
+
+  color: #333;
+
+  text-align: center;
+  font-weight: bold;
+  
+  text-shadow:
+  0 2px 4px rgba(0,0,0,0.3);
+
+}
+
+.bigStart {
+  font-size: 28px;
+  padding: 18px 40px;
+
+  border-radius: 50px;
+
+  margin-bottom: 30px;
+
+  box-shadow:
+    0 6px 0 #000,
+    0 12px 20px rgba(0,0,0,0.3);
+}
+
 
 
 
@@ -494,7 +523,7 @@ canvas {
 
 <!-- 🎮 メニュー -->
 <div id="menu">
-  <h1>🎮 Party Game</h1>
+  <h1>🎮 Party Game 🎮</h1>
   <button onclick="showGame('roulette')">ルーレット</button><br>
   <button onclick="showGame('king')">王様ゲーム</button><br>
   <button onclick="showGame('reaction')">反射神経ゲーム</button><br>
@@ -543,9 +572,9 @@ canvas {
 <div id="reaction" class="game">
   <h2>⚡ 反射神経ゲーム</h2>
 
-  <div id="reactionText" class="result">GO!の合図でボタンを押せ</div>
+  <div id="reactionText" class="result">GO!でボタンを押せ</div>
 
-  <button id="reactionBtn">スタート</button>
+  <button id="reactionBtn">START</button>
   <button onclick="back()">戻る</button>
 </div>
 
@@ -580,8 +609,14 @@ canvas {
 
   <div id="balloonArea"></div>
 
+  <div id="balloonRule">
+  順番に風船を割っていき<br>
+  爆発したら負けです！
+  </div>
+
+
   <div id="balloonControls">
-  <button id="startBtn" onclick="startBalloon()">スタート</button>
+  <button id="startBtn" class="bigStart" onclick="startBalloon()">スタート</button>
   <button onclick="back()">戻る</button>
 </div>
 </div>
