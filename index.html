@@ -177,97 +177,152 @@ canvas {
 
 /* 王様ゲーム */
 .card {
-  width: 60%;
-  max-width: 200px;
+  width: 200px;
   height: 120px;
-
   margin: 40px auto;
-  
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.6s;
-
-
-  perspective: 800px;
-  cursor: pointer;
 }
 
 .card div {
   width: 100%;
   height: 100%;
   border-radius: 15px;
-
   position: absolute;
   backface-visibility: hidden;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
-  font-size: 32px;
+  font-size: 28px;
   font-weight: bold;
 }
 
-/* 表（？） */
 .front {
   background: white;
-  color: black;
+  color: #ff6ec7;
 }
 
-/* 裏（結果） */
 .back {
-  background: linear-gradient(45deg, #ff6a00, #ff3c00);
+  background: #ff6ec7;
   color: white;
   transform: rotateY(180deg);
 }
 
-/* 回転 */
-.card.flip {
+.flip {
   transform: rotateY(180deg);
-  transition: 0.6s;
+}
+
+/* 命令 */
+#kingOrder {
+  font-size: 28px;
+  margin-top: 30px;
+
+  text-align: center;
+  font-weight: bold;
+
+  color: white;
+
+  text-shadow:
+    0 2px 5px rgba(0,0,0,0.3);
+}
+
+
+button {
+  width: 100%;
+  max-width: 300px;
+
+  padding: 16px;
+  margin: 12px 0;
+
+  font-size: 18px;
+
+  border-radius: 30px;
+
+  background: linear-gradient(45deg, #ff6ec7, #00f2ff);
+  color: white;
+  
+  border: none;
+
+  box-shadow: 
+    0 5px 0 #000,
+    0 10px 20px rgba(0,0,0,0.3);
+
+  transition: 0.2s;
+}
+
+button:active {
+  transform: translateY(5px);
+  box-shadow: 
+    0 2px 0 #000,
+    0 5px 10px rgba(0,0,0,0.3);
 }
 
 #counter {
   display: flex;
   align-items: center;
   gap: 20px;
-  margin: 20px;
+  justify-content: center;
 }
 
 #counter button {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   font-size: 24px;
   border-radius: 50%;
-
-  display: flex;       
-  justify-content: center;    
-  align-items: center;       
 }
 
-#countDisplay {
-  font-size: 28px;
-  font-weight: bold;
+#king button {
+  display: block;
+  margin: 12px auto;
 }
 
-.card.start {
-  transform: scale(1.1);
-  transition: 0.3s;
+#king > button {
+  display: block;
+  margin: 20px auto;
 }
 
-.king-hit {
-  animation: boom 0.4s ease;
-  background: gold !important;
-  color: black !important;
-  font-size: 36px;
+#king > * {
+  margin-left: auto;
+  margin-right: auto;
 }
 
-@keyframes boom {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
+#kingCard {
+  display: none;
 }
 
+#levelSelect {
+  display: flex;
+  flex-direction: row !important;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+
+#levelSelect button {
+  transition: 0.2s;
+  width: 80px;
+  padding: 10px;
+  font-size: 16px;
+
+}
+
+/* 押してるとき */
+#levelSelect button:active {
+  transform: translateY(4px);
+}
+
+/* ✅ 選択中 */
+.level-selected {
+  transform: translateY(4px);
+  
+  background: linear-gradient(45deg, #ff1744, #ff9100);
+  
+  box-shadow:
+    0 2px 0 #000,
+    0 5px 10px rgba(0,0,0,0.3);
+}
 
 
 
@@ -292,8 +347,18 @@ canvas {
 
 /* テキスト */
 #reactionText {
-  font-size: 36px;
-  margin-bottom: 40px;
+  font-size: 38px;
+  line-height: 1.6;
+
+  margin-bottom: 30px;
+
+  color: #333;
+
+  text-align: center;
+  font-weight: bold;
+  
+  text-shadow:
+  0 2px 4px rgba(0,0,0,0.3);
 }
 
 /* スタートボタン（超重要🔥） */
@@ -379,6 +444,10 @@ canvas {
   justify-self: center;
   align-self: center;
   margin: auto;
+}
+
+button:disabled {
+  opacity: 0.5;
 }
 
 /* 風船ゲーム */
@@ -551,20 +620,33 @@ canvas {
 <div id="king" class="game">
   <h2>👑 王様ゲーム</h2>
 
-  <div class="card" id="kingCard">
+  <!-- 人数選択 -->
+  <div id="counter">
+    <button onclick="changeCount(-1)">−</button>
+    <span id="countDisplay">3</span>
+    <button onclick="changeCount(1)">＋</button>
+  </div>
+
+  <!-- レベル選択 -->
+  <div id="levelSelect">
+    <button onclick="setLevel(1)">友達</button>
+    <button onclick="setLevel(2)">男女</button>
+    <button onclick="setLevel(3)">お題無し</button>
+  </div>
+
+  <!-- スタート -->
+  <button id="kingStartBtn" onclick="startKingGame()" disabled>
+    スタート！
+  </button>
+
+  <!-- カード -->
+  <div class="card" id="kingCard" style="display:none;">
     <div class="front">？</div>
     <div class="back"></div>
   </div>
 
-  <div id="counter">
-  <button onclick="changeCount(-1)">−</button>
-  <span id="countDisplay">3</span>
-  <button onclick="changeCount(1)">＋</button>
-  </div>
+  <div id="kingOrder"></div>
 
-
-
-  <button onclick="startKingGame()">スタート</button>
   <button onclick="back()">戻る</button>
 </div>
 
@@ -590,7 +672,7 @@ canvas {
 
 <div id="diceText"></div>
 
-  <button onclick="rollDice()">振る</button>
+  <button id="rollBtn" onclick="rollDice()">振る</button>
   <button onclick="back()">戻る</button>
 </div>
 
@@ -611,7 +693,7 @@ canvas {
 
   <div id="balloonRule">
   順番に風船を割っていき<br>
-  爆発したら負けです！
+  爆発したら負け！
   </div>
 
 
@@ -646,6 +728,7 @@ function back() {
   resetRoulette();
   resetKing();
   resetReaction();
+  resetDice();
   resetBalloon();
 
 }
@@ -775,107 +858,290 @@ drawWheel();
 
 // 🫅 王様ゲーム
 let players = [];
-
 let count = 3;
+let kingLevel = 1;
+let selected = [];
+let canClick = true;
 
+let kingState = "count";
+// count → level → ready → play
+
+
+// 命令リスト
+const ordersLv1 = [
+  "〇番が飲む",
+  "〇番が語尾固定(飽きるまで)",
+  "〇番が変顔",
+  "〇番がモノマネ",
+  "〇番と〇番で友情飲み",
+  "〇番が右隣の人を褒める",
+  "王様が決める",
+  "〇番が〇番に変なあだ名つける",
+  "王様が決める",
+  "王様が決める"
+
+];
+
+const ordersLv2 = [
+  "〇番が〇番に飲ませる",
+  "〇番が〇番に褒めてもらう",
+  "〇番と〇番が２人でポーズ",
+  "〇番がいいと思う人を発表",
+  "〇番が好きなタイプ暴露",
+  "王様が決める",
+  "〇番と〇番が乾杯",
+  "〇番が理想のデートプラン発表",
+  "〇番と〇番２人飲み",
+  "〇番と〇番ハイタッチ"
+
+];
+
+const ordersLv3 = [
+  "",
+  "仕事の失敗を話せ",
+  "自分の強みを言え",
+  "仕事で嬉しかったこと",
+  "尊敬する人を言え",
+  "将来の目標を言え",
+  "最近の出来事を共有",
+  "営業トークしてみろ",
+  "仕事の裏話",
+  "自己PRしろ"
+];
+
+// 人数
 function changeCount(num) {
   count += num;
-
   if (count < 3) count = 3;
   if (count > 12) count = 12;
-
   document.getElementById("countDisplay").textContent = count;
 }
 
+// レベル選択
+function showLevelSelect() {
+  document.getElementById("levelSelect").style.display = "block";
+}
 
+function startKingGameWithLevel(level) {
+  kingLevel = level;
+  document.getElementById("levelSelect").style.display = "none";
+  kingState = "ready";
+  document.getElementById("kingStartBtn").textContent = "スタート！";
+}
+
+// 開始
 function startKingGame() {
-  const total = count;
+
+  canClick = true;
+
+  console.log("スタート押された"); // ✅ デバッグ
+
+  // ✅ UI全部消す（確実に）
+  const level = document.getElementById("levelSelect");
+  const counter = document.getElementById("counter");
+  const startBtn = document.getElementById("kingStartBtn");
+
+  level.style.display = "none";
+  counter.style.display = "none";
+  startBtn.style.display = "none";
+
+  // ✅ 念押し（バグ防止）
+  level.classList.remove("show");
+
+  // ✅ カード表示
+  const card = document.getElementById("kingCard");
+  card.style.display = "block";
 
   players = [];
 
   players.push("👑 王様");
 
-  for (let i = 1; i < total; i++) {
+  for (let i = 1; i < count; i++) {
     players.push(i + "番");
   }
 
-  // シャッフル
-  for (let i = players.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [players[i], players[j]] = [players[j], players[i]];
-  }
+  players.sort(() => Math.random() - 0.5);
 
-  const front = document.querySelector("#kingCard .front");
-  const back = document.querySelector("#kingCard .back");
-  const card = document.getElementById("kingCard");
-
-  card.classList.add("start");
-
-  setTimeout(() => {
-  card.classList.remove("start");
   showPlayer(0);
-  }, 1200);
-
-
-  // ✅ ここ追加（スタート演出）
-  front.textContent = "START!";
-  back.textContent = "";
-  card.classList.remove("flip");
-
-  // ✅ 少し待ってから開始
-  setTimeout(() => {
-    showPlayer(0);
-  }, 1200);
 }
 
-
+// カード
 function showPlayer(index) {
+
+  canClick = true;
   const card = document.getElementById("kingCard");
   const front = card.querySelector(".front");
   const back = card.querySelector(".back");
 
   front.textContent = "？";
-  back.textContent = "";
+  back.textContent = "？";
   card.classList.remove("flip");
 
   card.onclick = function () {
 
-    back.textContent = players[index];
+  // ✅ 押せない状態なら無視
+  if (!canClick) return;
 
-    card.classList.add("flip");
+  // ✅ 押せない状態にする
+  canClick = false;
 
-    // ✅ ここ追加🔥
-    if (players[index].includes("王様")) {
-      back.classList.add("king-hit");
+  // ✅ メッセージ消す
+  document.getElementById("kingOrder").textContent = "";
 
-      // 一瞬で元に戻す
+  // めくる
+  back.textContent = players[index];
+  card.classList.add("flip");
+
+  setTimeout(() => {
+
+    // 戻す
+    card.classList.remove("flip");
+    front.textContent = "？";
+    back.textContent = "？";
+
+    if (index + 1 < players.length) {
+
+      // 👉 次の人に回してね
+      document.getElementById("kingOrder").textContent =
+        "👉 次の人に回してね";
+
       setTimeout(() => {
-        back.classList.remove("king-hit");
-      }, 400);
+        showPlayer(index + 1);
+      }, 800);
 
-      // ✅ ドン表示（追加）
-      front.textContent = "💥";
+    } else {
+
+      // 最後の人
+      setTimeout(() => {
+        endKingGame();
+      }, 800);
+
     }
 
-    setTimeout(() => {
-      if (index + 1 < players.length) {
-        showPlayer(index + 1);
-      } else {
-        front.textContent = "終了！";
-        card.classList.remove("flip");
-      }
-    }, 1500);
-  };
+  }, 1500);
+};
+}
+
+function endKingGame() {
+
+  document.getElementById("kingCard").style.display = "none";
+
+  const el = document.getElementById("kingOrder");
+
+  if (kingLevel === 3) {
+
+    // お題なし
+    el.innerHTML = `
+      <div>👑 王様が自由に決めてね</div><br>
+      <button onclick="restartKingGame()">もう一度</button>
+    `;
+
+  } else {
+
+    // ✅ お題ありはボタン1つだけ
+    el.innerHTML = `
+      <button onclick="showFinalOrder()">お題を確認する</button>
+    `;
+  }
+}
+
+// 命令表示
+function showFinalOrder() {
+
+  let list;
+
+  if (kingLevel === 1) list = ordersLv1;
+  else if (kingLevel === 2) list = ordersLv2;
+
+  const order = list[Math.floor(Math.random() * list.length)];
+
+  // ✅ ここでボタン追加！！
+  document.getElementById("kingOrder").innerHTML = `
+    <div style="margin-bottom:20px;">👑 ${order}</div>
+    <button onclick="restartKingGame()">もう一度</button>
+  `;
 }
 
 function resetKing() {
+
+  const card = document.getElementById("kingCard");
+
+  canClick = true;
+
+  // ✅ カード初期化
+  card.classList.remove("flip");
+  card.style.display = "none";
+  card.querySelector(".front").textContent = "？";
+  card.querySelector(".back").textContent = "";
+
+  // ✅ 命令消す
+  document.getElementById("kingOrder").textContent = "";
+
+  // ✅ UI完全復元
+  document.getElementById("counter").style.display = "flex";
+
+  // 👇 ここ超重要（横並び維持）
+  document.getElementById("levelSelect").style.display = "flex";
+
+  document.getElementById("kingStartBtn").style.display = "block";
+
+  // ✅ スタートボタン状態リセット（これが犯人だった）
+  document.getElementById("kingStartBtn").disabled = true;
+
+  // ✅ レベルも初期化
+  kingLevel = 0;
+
+  // ✅ 選択状態消す
+  document.querySelectorAll("#levelSelect button").forEach(btn => {
+    btn.classList.remove("level-selected");
+  });
+}
+
+
+function setLevel(level) {
+  kingLevel = level;
+
+  document.getElementById("kingStartBtn").disabled = false;
+
+  // 選択状態の見た目更新
+  document.querySelectorAll("#levelSelect button").forEach(btn => {
+    btn.classList.remove("level-selected");
+  });
+
+  event.target.classList.add("level-selected");
+}
+
+function restartKingGame() {
+
+  // ✅ 表示リセット
+  document.getElementById("kingOrder").textContent = "";
+
+  // ✅ カード初期化
   const card = document.getElementById("kingCard");
 
   card.classList.remove("flip");
+  card.style.display = "block";
   card.querySelector(".front").textContent = "？";
-  card.querySelector(".back").textContent = "";
-}
+  card.querySelector(".back").textContent = "？";
 
+  // ✅ 押せる状態に戻す
+  canClick = true;
+
+  // ✅ 人数・レベルはそのまま使う（←これがポイント🔥）
+
+  players = [];
+
+  players.push("👑 王様");
+
+  for (let i = 1; i < count; i++) {
+    players.push(i + "番");
+  }
+
+  players.sort(() => Math.random() - 0.5);
+
+  // ✅ 0人目から再スタート
+  showPlayer(0);
+}
 
 
 
@@ -946,39 +1212,56 @@ btn.addEventListener("click", function() {
   function resetReaction() {
   state = "idle";
 
-  text.textContent = "GO!の合図でボタンを押せ";
+  text.textContent = "GO!でボタンを押せ";
   btn.textContent = "スタート";
 }
 
 
   // 🎲 チンチロ
+  updateDice(1, 1, 1);
   function rollDice() {
 
-  let count = 0;
-  let speed = 60;
+  const btn = document.getElementById("rollBtn");
 
-  function roll() {
+  if (btn.disabled) return;
+  btn.disabled = true;
 
-    let d1 = rand();
-    let d2 = rand();
-    let d3 = rand();
+  // ✅ 最終結果
+  let d1 = rand();
+  let d2 = rand();
+  let d3 = rand();
 
-    updateDice(d1, d2, d3);
+  let i = 0;
+  let speed = 50; // 最初の速さ
 
-    count++;
+  function rollAnimation() {
+
+    // ランダムで更新
+    updateDice(rand(), rand(), rand());
+
+    i++;
 
     // ✅ 徐々に遅くする
-    speed += 10;
+    speed += 20;
 
-    if (count < 20) {
-      setTimeout(roll, speed);
-    } else {
+    if (i > 15) {
+
+      // ✅ 最後
+      updateDice(d1, d2, d3);
       showDiceResult(d1, d2, d3);
+
+      btn.disabled = false;
+      return;
     }
+
+    // ✅ 次のフレーム
+    setTimeout(rollAnimation, speed);
   }
 
-  roll();
+  // スタート
+  rollAnimation();
 }
+
 
 
 function rand() {
@@ -1049,6 +1332,18 @@ function drawDots(id, num) {
   }
 }
 
+function resetDice() {
+
+  // 🎲 サイコロ初期化（全部1に戻す）
+  updateDice(1, 1, 1);
+
+  // 結果消す
+  document.getElementById("diceText").textContent = "";
+
+  // ✅ ボタン復活
+  document.getElementById("rollBtn").disabled = false;
+}
+
 // 風船ゲーム
 let bombIndex = -1;
 let gameOver = false;
@@ -1057,6 +1352,8 @@ let gameOver = false;
 function startBalloon() {
 
   gameOver = false;
+
+  document.getElementById("balloonRule").style.display = "none";
 
   document.getElementById("startBtn").style.display = "none";
 
@@ -1143,6 +1440,9 @@ function shakeScreen() {
 function resetBalloon() {
 
   gameOver = false;
+
+  
+  document.getElementById("balloonRule").style.display = "block";
 
   // 風船削除
   document.getElementById("balloonArea").innerHTML = "";
