@@ -154,6 +154,37 @@ button:hover {
   --accent: #00f2ff;
 }
 
+.title {
+  font-size: 42px;
+  font-weight: bold;
+  text-align: center;
+
+  /* ✅ グラデ文字 */
+  background: linear-gradient(90deg, #ff6ec7, #00f2ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* ✅ アニメ */
+  animation: glowMove 3s linear infinite, bounce 1.5s ease-in-out infinite;
+
+  /* ✅ ここが重要：影を「締める」 */
+  text-shadow:
+    0 2px 4px rgba(0,0,0,0.6),
+    0 0 10px rgba(255,255,255,0.4);
+}
+
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+
+/* グラデーション移動 */
+@keyframes glowMove {
+  0% { background-position: 0%; }
+  100% { background-position: 200%; }
+}
 
 /* ルーレット */
 #wheelContainer {
@@ -592,7 +623,7 @@ button:disabled {
 
 <!-- 🎮 メニュー -->
 <div id="menu">
-  <h1>🎮 Party Game 🎮</h1>
+  <h1 class="title">🎮 Party Game 🎮</h1>
   <button onclick="showGame('roulette')">ルーレット</button><br>
   <button onclick="showGame('king')">王様ゲーム</button><br>
   <button onclick="showGame('reaction')">反射神経ゲーム</button><br>
